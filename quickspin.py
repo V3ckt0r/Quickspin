@@ -17,7 +17,7 @@ parser.add_argument("-v", "--verbose", help="show api call to googleapi", action
 args = parser.parse_args()
 
 
-# List running instances
+# List all running instances in Region
 def listRunning():
     instances = ec2.instances.filter(Filters=[{'Name': 'instance-state-name', 'Values': ['running']}])
     for instance in instances:
@@ -31,11 +31,13 @@ def upIt(instance_list):
     response = client.start_instances( InstanceIds=instance_list, AdditionalInfo='string', DryRun=False)
     responseCheck(response)
 
+# Bring down from a list of instances ids
 def downIt(instance_list):
 
     response = client.stop_instances( InstanceIds=instance_list, Force=False, DryRun=False)
     responseCheck(response)
 
+# Check the response for a given action and evaluate the calling function from the stack.
 def responseCheck(response):
     curframe = inspect.currentframe()
     calframe = inspect.getouterframes(curframe, 2)
@@ -51,9 +53,6 @@ def responseCheck(response):
         error_reponse = response['ResponseMetadata']['HTTPStatusCode']
         print "Error code {} returned.".format(error_reponse)
         return 1
-
-def runIt():
-    pass
 
 def main():
     if len(sys.argv) <= 1:
