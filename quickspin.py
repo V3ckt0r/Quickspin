@@ -13,9 +13,25 @@ parser = argparse.ArgumentParser()
 parser.add_argument("-u","--up", nargs='+', help="List of EC2 ids to bring up", required=False)
 parser.add_argument("-d","--down", nargs='+', help="List of EC2 ids to bring down", required=False)
 parser.add_argument("-l", "--list", help="show all EC2 instances running", action="store_true")
+parser.add_argument("-la", "--listall", help="show all EC2 instances running", action="store_true")
 parser.add_argument("-v", "--verbose", help="show api call to googleapi", action="store_true")
 args = parser.parse_args()
 
+
+
+# List all rinstance in Region using client
+def listAllRunning():
+    response = client.describe_instances()
+    print "InstanceID        Tags        InstanceType          PrivateIP                LaunchTime"
+    for i in response["Reservations"]:
+        for ins in i["Instances"]:
+            print(ins["InstanceId"], ins["Tags"][0]["Value"], ins["InstanceType"], ins["PrivateIpAddress"]), ins["LaunchTime"], "\n"
+
+# List all rinstance in Region using resource
+def listAllRunningRes():
+    instances = ec2.instances.filter(InstanceIds=[])
+    for i in instances:
+        print i
 
 # List all running instances in Region
 def listRunning():
@@ -61,6 +77,10 @@ def main():
 
     if args.list:
         listRunning()
+        sys.exit(0)
+
+    if args.listall:
+        listAllRunning()
         sys.exit(0)
 
     if args.up:
