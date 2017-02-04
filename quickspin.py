@@ -30,16 +30,22 @@ def listAllRunning():
 # List all rinstance in Region using resource
 def listAllRunningRes():
     instances = ec2.instances.filter(InstanceIds=[])
-    for i in instances:
-        print i
+    try:
+        for i in instances:
+            print i
+    except boto3.exceptions.botocore.exceptions.EndpointConnectionError:
+        print "Check that you have internet connection and the correct proxy settings"
 
 # List all running instances in Region
 def listRunning():
     instances = ec2.instances.filter(Filters=[{'Name': 'instance-state-name', 'Values': ['running']}])
-    for instance in instances:
-        for tag in instance.tags:
-            if tag['Key'] == 'Name':
-                print(instance.id, tag['Value'], instance.instance_type, instance.public_ip_address)
+    try:
+        for instance in instances:
+            for tag in instance.tags:
+                if tag['Key'] == 'Name':
+                    print(instance.id, tag['Value'], instance.instance_type, instance.public_ip_address)
+    except boto3.exceptions.botocore.exceptions.EndpointConnectionError:
+        print "Check that you have internet connection and the correct proxy settings"
 
 # Spin up from a list of instances ids
 def upIt(instance_list):
