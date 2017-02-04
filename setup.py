@@ -5,7 +5,7 @@ setup(
     name="Quickspin",
 
     # Version number (initial):
-    version="0.1.0",
+    version="0.1.1",
 
     # Application author details:
     author="V3ckt0r",
@@ -21,8 +21,7 @@ setup(
             'console_scripts': [
                 'quickspin = quickspin:main',
             ]
-    ]
-                                                                            }
+    },
 
     # Details
     url="https://github.com/V3ckt0r/Quickspin",
@@ -31,7 +30,7 @@ setup(
     license="LICENSE.txt",
     description="Quickspin CLI tool for managing AWS resources",
 
-    long_description=open("README.md").read(),
+    long_description=open("DESCRIPTION.rst").read(),
 
     # Dependent packages (distributions)
     install_requires=[
