@@ -19,7 +19,7 @@ setup(
 
     entry_points={
             'console_scripts': [
-                'quickspin = quickspin:main',
+                'quickspin = Quickspin.quickspin:main',
             ]
     },
 
