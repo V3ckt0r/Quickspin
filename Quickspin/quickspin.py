@@ -119,33 +119,33 @@ def responseCheck(response):
 
 def main():
 
-  if len(sys.argv) <= 1:
-      print "You must use a flag to tell quickspin what to do... use -h for help"
-      sys.exit(1)
+    if len(sys.argv) <= 1:
+        print "You must use a flag to tell quickspin what to do... use -h for help"
+        sys.exit(1)
 
-  if args.config:
-      configaws()
-      sys.exit(0)
+    if args.config:
+        configaws()
+        sys.exit(0)
 
-  if args.list:
-     connect()
-     listRunning()
-     sys.exit(0)
+    if args.list:
+        connect()
+        listRunning()
+        sys.exit(0)
 
-  if args.listall:
-      connect()
-      listAllRunning()
-      sys.exit(0)
+    if args.listall:
+        connect()
+        listAllRunning()
+        sys.exit(0)
 
-  if args.up:
-      connect()
-      upIt(args.up)
-      sys.exit(0)
+    if args.up:
+        connect()
+        upIt(args.up)
+        sys.exit(0)
 
-  if args.down:
-      connect()
-      downIt(args.down)
-      sys.exit(0)
+    if args.down:
+        connect()
+        downIt(args.down)
+        sys.exit(0)
 
     print "An error occured"
     sys.exit(1)
