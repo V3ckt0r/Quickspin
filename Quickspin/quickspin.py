@@ -12,9 +12,9 @@ client = boto3.client('ec2')
 parser = argparse.ArgumentParser()
 parser.add_argument("-u","--up", nargs='+', help="List of EC2 ids to bring up", required=False)
 parser.add_argument("-d","--down", nargs='+', help="List of EC2 ids to bring down", required=False)
-parser.add_argument("-l", "--list", help="show all EC2 instances running", action="store_true")
-parser.add_argument("-la", "--listall", help="show all EC2 instances running", action="store_true")
-parser.add_argument("-v", "--verbose", help="show api call to googleapi", action="store_true")
+parser.add_argument("-c","--config", nargs='+', help="Configure Quickspin with your AWS credentials", required=False)
+parser.add_argument("-l", "--list", help="Show all EC2 instances running", action="store_true")
+parser.add_argument("-la", "--listall", help="Show all EC2 instances running", action="store_true")
 args = parser.parse_args()
 
 
@@ -97,8 +97,8 @@ def main():
         downIt(args.down)
         sys.exit(0)
 
-    print "thats it"
-    sys.exit(0)
+    print "An error occured"
+    sys.exit(1)
 
 if __name__ == "__main__":
     main()
