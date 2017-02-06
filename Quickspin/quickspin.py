@@ -4,22 +4,60 @@ import boto3
 import argparse
 import sys
 import inspect
-
-ec2 = boto3.resource('ec2')
-client = boto3.client('ec2')
+import getpass
+import os.path
+from os.path import expanduser
 
 # Set up acceptable arguments
 parser = argparse.ArgumentParser()
 parser.add_argument("-u","--up", nargs='+', help="List of EC2 ids to bring up", required=False)
 parser.add_argument("-d","--down", nargs='+', help="List of EC2 ids to bring down", required=False)
-parser.add_argument("-c","--config", nargs='+', help="Configure Quickspin with your AWS credentials", required=False)
+parser.add_argument("-c", "--config", help="Configure Quickspin with your AWS credentials", action="store_true")
 parser.add_argument("-l", "--list", help="Show all EC2 instances running", action="store_true")
 parser.add_argument("-la", "--listall", help="Show all EC2 instances running", action="store_true")
 args = parser.parse_args()
 
+# Configure AWS credentials 
+def configaws():
+    # create aws credentials file
+    home = expanduser("~")
+    if os.path.isfile(home+"/.aws/credentials"):
+        print "Your credentials are already setup"
+    else:
+        aws_key = raw_input("Enter your AWS key: ")
+        aws_secret = getpass.getpass(prompt='Enter your AWS secret: ')
 
+        file_name = os.path.join(home+"/.aws/", "credentials")
+        file = open(file_name, "w")
+        file.write("[default]")
+        file.write("\n")
+        file.write("aws_access_key_id = {}".format(aws_key))
+        file.write("\n")
+        file.write("aws_secret_access_key = {}".format(aws_secret))
+        file.write("\n")
+        file.close()
 
-# List all rinstance in Region using client
+    if os.path.isfile(home+"/.aws/config"):
+        print "Your config is already setup"
+    else:
+        # create AWS config file
+        aws_region = raw_input("What region do you want to connect to? (regions can be found here http://docs.aws.amazon.com/general/latest/gr/rande.html): ")
+        conf_file_name = os.path.join(home+"/.aws/", "config")
+        conf_file = open(conf_file_name, "w")
+        conf_file.write("[default]")
+        conf_file.write("\n")
+        conf_file.write("# AWS regions")
+        conf_file.write("\n")
+        conf_file.write("region = {}".format(aws_region))
+        conf_file.write("\n")
+        conf_file.close()
+
+# Establish boto connections
+def connect():
+    ec2 = boto3.resource('ec2')
+    client = boto3.client('ec2')
+
+# List all instance in Region using client
 def listAllRunning():
     response = client.describe_instances()
     print "InstanceID        Tags        InstanceType          PrivateIP                LaunchTime"
@@ -77,28 +115,38 @@ def responseCheck(response):
         return 1
 
 def main():
-    if len(sys.argv) <= 1:
-        print "You must use a flag to tell quickspin what to do... use -h for help"
-        sys.exit(1)
 
-    if args.list:
-        listRunning()
-        sys.exit(0)
+  if len(sys.argv) <= 1:
+      print "You must use a flag to tell quickspin what to do... use -h for help"
+      sys.exit(1)
 
-    if args.listall:
-        listAllRunning()
-        sys.exit(0)
+  if args.config:
+      configaws()
+      sys.exit(0)
 
-    if args.up:
-        upIt(args.up)
-        sys.exit(0)
+  if args.list:
+     connect()
+     listRunning()
+     sys.exit(0)
 
-    if args.down:
-        downIt(args.down)
-        sys.exit(0)
+  if args.listall:
+      connect()
+      listAllRunning()
+      sys.exit(0)
+
+  if args.up:
+      connect()
+      upIt(args.up)
+      sys.exit(0)
+
+  if args.down:
+      connect()
+      downIt(args.down)
+      sys.exit(0)
 
     print "An error occured"
     sys.exit(1)
+
 
 if __name__ == "__main__":
     main()
