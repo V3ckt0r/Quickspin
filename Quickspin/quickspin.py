@@ -62,6 +62,7 @@ def connect():
 
 # List all instance in Region using client
 def listAllRunning():
+    client = boto3.client('ec2')
     response = client.describe_instances()
     print "InstanceID        Tags        InstanceType          PrivateIP                LaunchTime"
     for i in response["Reservations"]:
@@ -70,6 +71,7 @@ def listAllRunning():
 
 # List all rinstance in Region using resource
 def listAllRunningRes():
+    ec2 = boto3.resource('ec2')
     instances = ec2.instances.filter(InstanceIds=[])
     try:
         for i in instances:
@@ -79,6 +81,7 @@ def listAllRunningRes():
 
 # List all running instances in Region
 def listRunning():
+    ec2 = boto3.resource('ec2')
     instances = ec2.instances.filter(Filters=[{'Name': 'instance-state-name', 'Values': ['running']}])
     try:
         for instance in instances:
@@ -90,13 +93,13 @@ def listRunning():
 
 # Spin up from a list of instances ids
 def upIt(instance_list):
-
+    client = boto3.client('ec2')
     response = client.start_instances( InstanceIds=instance_list, AdditionalInfo='string', DryRun=False)
     responseCheck(response)
 
 # Bring down from a list of instances ids
 def downIt(instance_list):
-
+    client = boto3.client('ec2')
     response = client.stop_instances( InstanceIds=instance_list, Force=False, DryRun=False)
     responseCheck(response)
 
@@ -128,22 +131,18 @@ def main():
         sys.exit(0)
 
     if args.list:
-        connect()
         listRunning()
         sys.exit(0)
 
     if args.listall:
-        connect()
         listAllRunning()
         sys.exit(0)
 
     if args.up:
-        connect()
         upIt(args.up)
         sys.exit(0)
 
     if args.down:
-        connect()
         downIt(args.down)
         sys.exit(0)
 
