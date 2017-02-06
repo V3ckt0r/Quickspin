@@ -39,5 +39,4 @@ or all instances like:
 ####Roadmap
 - Add config option to setup AWS credentials
 - Add method for creating EC2 instances
-- Add cloundformation api
-- 
+- Add cloundformation api 
