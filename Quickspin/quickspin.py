@@ -19,8 +19,11 @@ args = parser.parse_args()
 
 # Configure AWS credentials 
 def configaws():
-    # create aws credentials file
+
+    # User's home
     home = expanduser("~")
+
+    # create aws credentials file
     if os.path.isfile(home+"/.aws/credentials"):
         print "Your credentials are already setup"
     else:
@@ -37,10 +40,10 @@ def configaws():
         file.write("\n")
         file.close()
 
+    # create AWS config file
     if os.path.isfile(home+"/.aws/config"):
         print "Your config is already setup"
     else:
-        # create AWS config file
         aws_region = raw_input("What region do you want to connect to? (regions can be found here http://docs.aws.amazon.com/general/latest/gr/rande.html): ")
         conf_file_name = os.path.join(home+"/.aws/", "config")
         conf_file = open(conf_file_name, "w")
