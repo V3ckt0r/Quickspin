@@ -6,13 +6,16 @@ import sys
 import inspect
 import getpass
 import os.path
+import time
 from os.path import expanduser
 
 # Set up acceptable arguments
 parser = argparse.ArgumentParser()
 parser.add_argument("-u","--up", nargs='+', help="List of EC2 ids to bring up", required=False)
 parser.add_argument("-d","--down", nargs='+', help="List of EC2 ids to bring down", required=False)
-parser.add_argument("-c", "--config", help="Configure Quickspin with your AWS credentials", action="store_true")
+parser.add_argument("-c","--create", nargs='+', help="Create an EC2 instance", required=False)
+parser.add_argument("-r","--remove", nargs='+', help="Create an EC2 instance", required=False)
+parser.add_argument("-k", "--config", help="Configure Quickspin with your AWS credentials", action="store_true")
 parser.add_argument("-l", "--list", help="Show all EC2 instances running", action="store_true")
 parser.add_argument("-la", "--listall", help="Show all EC2 instances running", action="store_true")
 args = parser.parse_args()
@@ -60,6 +63,57 @@ def connect():
     ec2 = boto3.resource('ec2')
     client = boto3.client('ec2')
 
+def createInstance(name,count=1):
+    client = boto3.client('ec2')
+    ec2 = boto3.resource('ec2')
+    user = getpass.getuser()
+
+    # create instance
+    instance = ec2.create_instances(
+        DryRun=False,
+        ImageId='ami-e4c63e8b',
+        MinCount=count,
+        MaxCount=count,
+        KeyName='BDA-graphana',
+        InstanceType='t2.small',
+        SecurityGroups=[
+            'BDA-zen-dev',
+        ],
+    )
+    instance_id = instance[0].id
+
+    # check state of new instance
+    response = ''
+    state = ''
+    info = 'Waiting for instance to start up..'
+    while state != "running":
+        info += '.'
+        print info
+        time.sleep(1)
+        response = client.describe_instances(InstanceIds=[instance_id])
+        state = response[u'Reservations'][0][u'Instances'][0][u'State'][u'Name']
+
+    # Tag new instance
+    tag = ec2.create_tags(Resources=[instance_id], Tags=[{'Key':'Name', 'Value': user+"-"+name}])
+
+    if state == "running":
+        print "Instance {} created succesfully, instance id is {}".format(user+"-"+name, instance_id)
+        return 0
+    else:
+        print "Something went wrong"
+        return 1
+
+# Destroy instance
+def deleteInstance(ids):
+    ec2 = boto3.resource('ec2')
+    try:
+        ec2.instances.filter(InstanceIds=ids).terminate()
+        for e in ids:
+            print "Instance {} terminated...".format(e)
+    except boto3.exceptions.botocore.exceptions.ClientError:
+        print "Invalid id given, check id is correct and try again"
+        sys.exit(1)
+
 # List all instance in Region using client
 def listAllRunning():
     client = boto3.client('ec2')
@@ -68,16 +122,6 @@ def listAllRunning():
     for i in response["Reservations"]:
         for ins in i["Instances"]:
             print(ins["InstanceId"], ins["Tags"][0]["Value"], ins["InstanceType"], ins["PrivateIpAddress"]), ins["LaunchTime"], "\n"
-
-# List all rinstance in Region using resource
-def listAllRunningRes():
-    ec2 = boto3.resource('ec2')
-    instances = ec2.instances.filter(InstanceIds=[])
-    try:
-        for i in instances:
-            print i
-    except boto3.exceptions.botocore.exceptions.EndpointConnectionError:
-        print "Check that you have internet connection and the correct proxy settings"
 
 # List all running instances in Region
 def listRunning():
@@ -90,6 +134,7 @@ def listRunning():
                     print(instance.id, tag['Value'], instance.instance_type, instance.public_ip_address)
     except boto3.exceptions.botocore.exceptions.EndpointConnectionError:
         print "Check that you have internet connection and the correct proxy settings"
+        sys.exit(1)
 
 # Spin up from a list of instances ids
 def upIt(instance_list):
@@ -128,6 +173,14 @@ def main():
 
     if args.config:
         configaws()
+        sys.exit(0)
+
+    if args.create:
+        createInstance(args.create[0])
+        sys.exit(0)
+
+    if args.remove:
+        deleteInstance(args.remove)
         sys.exit(0)
 
     if args.list:
