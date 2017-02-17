@@ -13,13 +13,15 @@ source install via:
 
 
 ####Configure
-Quickspin expects to find your aws credentials in ~/.aws folder in a file called "credentials". An example of the file can be seen below:
-    
-    [default]
-    aws_access_key_id = <your_key>
-    aws_secret_access_key = <your_secret>
+To configure Quickspin with your credentials follow the example below:
+    quickspin -k
+    Enter your AWS key:
+    Enter your AWS secret:
+    What region do you want to connect to? (regions can be found here http://docs.aw    s.amazon.com/general/latest/gr/rande.html):
 
-There is a roadmap item to make this setup easier.
+Thats it, you will be good to go. If you already have your credentials and configuration stored under ~/.aws then you don't need to configure quickspin and doing the above will give you the following output:
+    Your credentials are already setup
+    Your config is already setup
 
 ####Quick Start
 Once installed use you can get help on use Quickspin as follows:
@@ -37,6 +39,4 @@ or all instances like:
     quickspin -la
 
 ####Roadmap
-- Add config option to setup AWS credentials
-- Add method for creating EC2 instances
 - Add cloundformation api 
