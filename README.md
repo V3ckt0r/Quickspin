@@ -39,4 +39,4 @@ or all instances like:
     quickspin -la
 
 ####Roadmap
-- Add cloundformation api 
+- Add cloundformation api.
