@@ -12,4 +12,4 @@ env:
 # command to run tests
 script:
   - cd Quickspin/tests
-  - python quickspin_test.py
+  - python quickspin_tests.py
