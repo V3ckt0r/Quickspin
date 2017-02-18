@@ -10,15 +10,17 @@ import time
 from os.path import expanduser
 
 # Set up acceptable arguments
-parser = argparse.ArgumentParser()
-parser.add_argument("-u","--up", nargs='+', help="List of EC2 ids to bring up", required=False)
-parser.add_argument("-d","--down", nargs='+', help="List of EC2 ids to bring down", required=False)
-parser.add_argument("-c","--create", nargs='+', help="Create an EC2 instance", required=False)
-parser.add_argument("-r","--remove", nargs='+', help="Create an EC2 instance", required=False)
-parser.add_argument("-k", "--config", help="Configure Quickspin with your AWS credentials", action="store_true")
-parser.add_argument("-l", "--list", help="Show all EC2 instances running", action="store_true")
-parser.add_argument("-la", "--listall", help="Show all EC2 instances running", action="store_true")
-args = parser.parse_args()
+def create_parser():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-u","--up", nargs='+', help="List of EC2 ids to bring up", required=False)
+    parser.add_argument("-d","--down", nargs='+', help="List of EC2 ids to bring down", required=False)
+    parser.add_argument("-c","--create", nargs='+', help="Create an EC2 instance", required=False)
+    parser.add_argument("-r","--remove", nargs='+', help="Create an EC2 instance", required=False)
+    parser.add_argument("-k", "--config", help="Configure Quickspin with your AWS credentials", action="store_true")
+    parser.add_argument("-l", "--list", help="Show all EC2 instances running", action="store_true")
+    parser.add_argument("-la", "--listall", help="Show all EC2 instances running", action="store_true")
+    parser.add_argument("-v", "--dryrun", help="Perform a dry run of a command", action="store_true")
+    return parser
 
 # Configure AWS credentials 
 def configaws():
@@ -122,6 +124,7 @@ def listAllRunning():
     for i in response["Reservations"]:
         for ins in i["Instances"]:
             print(ins["InstanceId"], ins["Tags"][0]["Value"], ins["InstanceType"], ins["PrivateIpAddress"]), ins["LaunchTime"], "\n"
+    return True
 
 # List all running instances in Region
 def listRunning():
@@ -132,21 +135,30 @@ def listRunning():
             for tag in instance.tags:
                 if tag['Key'] == 'Name':
                     print(instance.id, tag['Value'], instance.instance_type, instance.public_ip_address)
+        return 0
     except boto3.exceptions.botocore.exceptions.EndpointConnectionError:
         print "Check that you have internet connection and the correct proxy settings"
         sys.exit(1)
 
 # Spin up from a list of instances ids
-def upIt(instance_list):
+def upIt(instance_list, DryRun=False):
     client = boto3.client('ec2')
-    response = client.start_instances( InstanceIds=instance_list, AdditionalInfo='string', DryRun=False)
-    responseCheck(response)
+    try:
+        response = client.start_instances( InstanceIds=instance_list, AdditionalInfo='string', DryRun=DryRun)
+        responseCheck(response)
+    except boto3.exceptions.botocore.exceptions.ClientError:
+        print "Instances would of started however this was a Dry Run"
+        return "DryRun"
 
 # Bring down from a list of instances ids
-def downIt(instance_list):
+def downIt(instance_list, DryRun=False):
     client = boto3.client('ec2')
-    response = client.stop_instances( InstanceIds=instance_list, Force=False, DryRun=False)
-    responseCheck(response)
+    try:
+        response = client.stop_instances( InstanceIds=instance_list, Force=False, DryRun=DryRun)
+        responseCheck(response)
+    except boto3.exceptions.botocore.exceptions.ClientError:
+        print "Instances would of stopped however this was a Dry Run"
+        return "DryRun"
 
 # Check the response for a given action and evaluate the calling function from the stack.
 def responseCheck(response):
@@ -166,6 +178,8 @@ def responseCheck(response):
         return 1
 
 def main():
+    parser = create_parser()
+    args = parser.parse_args()
 
     if len(sys.argv) <= 1:
         print "You must use a flag to tell quickspin what to do... use -h for help"
@@ -192,11 +206,17 @@ def main():
         sys.exit(0)
 
     if args.up:
-        upIt(args.up)
+        if args.dryrun:
+            upIt(args.up, DryRun=True)
+        else:
+            upIt(args.up)
         sys.exit(0)
 
     if args.down:
-        downIt(args.down)
+        if arg.dryrun:
+            downIt(args.down, DryRun=True)
+        else:
+            downIt(args.down)
         sys.exit(0)
 
     print "An error occured"
