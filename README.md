@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/V3ckt0r/Quickspin.svg?branch=master)](https://travis-ci.org/V3ckt0r/Quickspin)
+
 ##Quickspin
 
 Quickspin is a simple CLI tool for spinning up a series of EC2 instances.
