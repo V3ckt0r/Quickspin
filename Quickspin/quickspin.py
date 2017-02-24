@@ -213,7 +213,7 @@ def main():
         sys.exit(0)
 
     if args.down:
-        if arg.dryrun:
+        if args.dryrun:
             downIt(args.down, DryRun=True)
         else:
             downIt(args.down)
