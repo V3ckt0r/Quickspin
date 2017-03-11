@@ -65,7 +65,7 @@ def connect():
     ec2 = boto3.resource('ec2')
     client = boto3.client('ec2')
 
-def createInstance(name,count=1):
+def createInstance(name, size, count=1):
     client = boto3.client('ec2')
     ec2 = boto3.resource('ec2')
     user = getpass.getuser()
@@ -77,7 +77,7 @@ def createInstance(name,count=1):
         MinCount=count,
         MaxCount=count,
         KeyName='BDA-graphana',
-        InstanceType='t2.small',
+        InstanceType=size,
         SecurityGroups=[
             'BDA-zen-dev',
         ],
@@ -190,7 +190,20 @@ def main():
         sys.exit(0)
 
     if args.create:
-        createInstance(args.create[0])
+        exitSwitch = 0
+
+        #check for instance size specification
+        try:
+            size = args.create[1]
+        except IndexError:
+            message = 'You need to specify a size for this instance'
+            print message
+            exitSwitch = 1
+
+        if exitSwitch == 1:
+            sys.exit(1)
+
+        createInstance(args.create[0], args.create[1])
         sys.exit(0)
 
     if args.remove:
