@@ -5,7 +5,7 @@ setup(
     name="Quickspin",
 
     # Version number (initial):
-    version="0.1.9",
+    version="0.1.11",
 
     # Application author details:
     author="V3ckt0r",
