@@ -1,10 +1,10 @@
 [![Build Status](https://travis-ci.org/V3ckt0r/Quickspin.svg?branch=master)](https://travis-ci.org/V3ckt0r/Quickspin)
 
-##Quickspin
+## Quickspin
 
 Quickspin is a simple CLI tool for spinning up a series of EC2 instances.
 
-###How to install
+### How to install
 You can install Quickspin using **pip**
 
     pip install Quickspin
@@ -14,7 +14,7 @@ source install via:
     python setup.py install
 
 
-####Configure
+#### Configure
 To configure Quickspin with your credentials follow the example below:
     quickspin -k
     Enter your AWS key:
@@ -25,7 +25,7 @@ Thats it, you will be good to go. If you already have your credentials and confi
     Your credentials are already setup
     Your config is already setup
 
-####Quick Start
+#### Quick Start
 Once installed use you can get help on use Quickspin as follows:
 
     quickspin -h
@@ -40,5 +40,5 @@ or all instances like:
 
     quickspin -la
 
-####Roadmap
+#### Roadmap
 - Add cloundformation api.
