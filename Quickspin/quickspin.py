@@ -123,6 +123,8 @@ def listAllRunning():
     print "InstanceID        Tags        InstanceType          PrivateIP                LaunchTime"
     for i in response["Reservations"]:
         for ins in i["Instances"]:
+            if ins[u'State'][u'Name'] == "terminated":
+                break
             print(ins["InstanceId"], ins["Tags"][0]["Value"], ins["InstanceType"], ins["PrivateIpAddress"]), ins["LaunchTime"], "\n"
     return True
 
