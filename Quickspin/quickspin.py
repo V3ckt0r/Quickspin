@@ -120,12 +120,14 @@ def deleteInstance(ids):
 def listAllRunning():
     client = boto3.client('ec2')
     response = client.describe_instances()
-    print "InstanceID        Tags        InstanceType          PrivateIP                LaunchTime"
+    print "InstanceID        Tags        InstanceType          PrivateIP                LaunchTime              State"
     for i in response["Reservations"]:
         for ins in i["Instances"]:
             if ins[u'State'][u'Name'] == "terminated":
+                print(ins["InstanceId"], ins["Tags"][0]["Value"], ins["InstanceType"], " ", ins[
+                    "LaunchTime"], ins["State"]["Name"]), "\n"
                 break
-            print(ins["InstanceId"], ins["Tags"][0]["Value"], ins["InstanceType"], ins["PrivateIpAddress"]), ins["LaunchTime"], "\n"
+            print(ins["InstanceId"], ins["Tags"][0]["Value"], ins["InstanceType"], ins["PrivateIpAddress"], ins["LaunchTime"], ins["State"]["Name"]), "\n"
     return True
 
 # List all running instances in Region
